@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tasks_project/Data/initial_screen.dart';
+import 'package:tasks_project/Screens/form_screen.dart';
 import 'Screens/initial_screen.dart';
 
 void main() {
@@ -14,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(primarySwatch: Colors.blue),
-        home: const InitialScreen(),
+        home: TaskInherited(child: const InitialScreen()),
     );
   }
 }

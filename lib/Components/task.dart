@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-
+import 'package:tasks_project/Data/task_dao.dart';
 import 'dificuty.dart';
 
 class Task extends StatefulWidget {
   final String nome;
   final String foto;
   final int dificuldade;
+  final VoidCallback? onTaskDeleted;
 
-  const Task(this.nome, this.foto, this.dificuldade, {super.key});
+  const Task(this.nome, this.foto, this.dificuldade, {super.key, this.onTaskDeleted});
 
   @override
   State<Task> createState() => _TaskState();
@@ -15,6 +16,13 @@ class Task extends StatefulWidget {
 
 class _TaskState extends State<Task> {
   int nivel = 0;
+
+  bool assetOrNetwork() {
+    if (widget.foto.contains('http')) {
+      return false;
+    }
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +52,12 @@ class _TaskState extends State<Task> {
                           borderRadius: BorderRadius.circular(6)),
                       width: 90,
                       height: 100,
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.circular(6),
-                          child: Image.network(widget.foto, fit: BoxFit.cover)),
+                      child: assetOrNetwork()
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(6),
+                              child:
+                                  Image.asset(widget.foto, fit: BoxFit.cover))
+                          : Image.network(widget.foto, fit: BoxFit.cover),
                     ),
                     SizedBox(
                       width: 200,
@@ -69,7 +80,6 @@ class _TaskState extends State<Task> {
                               setState(() {
                                 nivel++;
                               });
-                              // print(nivel);
                             },
                             child: const Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -81,8 +91,9 @@ class _TaskState extends State<Task> {
                   ],
                 ),
               ),
+
               Padding(
-                padding: const EdgeInsets.all(9.0),
+                padding: const EdgeInsets.all(12.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -103,6 +114,27 @@ class _TaskState extends State<Task> {
                 ),
               )
             ],
+          ),
+          Positioned(
+            top: -10,
+            left: 0,
+            child: ElevatedButton(
+              onPressed: () async {
+                await TaskDao().delete(widget.nome);
+                setState(() {
+                  if (widget.onTaskDeleted != null) {
+                    widget.onTaskDeleted!(); // Chama a função de callback após a exclusão da tarefa
+                  }
+                });
+              },
+              style: ButtonStyle(
+                minimumSize: MaterialStateProperty.all(Size(30, 30)), // Define o tamanho mínimo do botão
+                padding: MaterialStateProperty.all(EdgeInsets.zero), // Remove o espaçamento interno do botão
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Reduz o tamanho do hit area do botão
+                backgroundColor: MaterialStateProperty.all(Colors.deepOrange),
+              ),
+              child: const Text('x', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 18)),
+            ),
           ),
         ],
       ),
